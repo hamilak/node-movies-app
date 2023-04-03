@@ -1,0 +1,28 @@
+<h3>{{viewTitle}}</h3>
+
+<form action="/movie" method="POST">
+    <div>
+        <label for="">Movie title</label>
+        <input type="text" name="name" class="" placeholder="Movie title" value="{{movie.name}}">
+        <div>
+            {{movie.nameError}}
+        </div>
+    </div>
+    <div>
+        <label for="">Year of release</label>
+        <input type="text" name="year" class="" placeholder="Year of release" value="{{movie.year}}">
+        <div>
+            {{movie.yearError}}
+        </div>
+    </div>
+    <div>
+        <label for="">Movie ranking</label>
+        <input type="text" name="rating" class="" placeholder="Movie ranking" value="{{movie.name}}">
+        <div>
+            {{movie.ratingError}}
+        </div>
+    </div>
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</form>
