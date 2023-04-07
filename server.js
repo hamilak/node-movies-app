@@ -14,7 +14,7 @@ app.use(bodyparser.urlencoded({
 app.use(bodyparser.json())
 
 app.set("views", path.join(__dirname, '/views/'))
-app.engine('hbs', exphbs.engine({extname: 'hbs', defaultLayout: 'mainlayout', layoutsDir: __dirname + '/views/layouts'})) 
+// app.engine('hbs', exphbs.engine({extname: 'hbs', defaultLayout: 'mainlayout', layoutsDir: __dirname + '/views/layouts'})) 
 app.set('view engine', 'hbs')
 
 app.listen(3000, ()=>{

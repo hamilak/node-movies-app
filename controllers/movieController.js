@@ -2,8 +2,55 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose")
 const Movie = mongoose.model("Movieslist")
-const movieModel = require("../models/movie.model")
+const movieModel = require("../models/model")
 const movieController = require("../controllers/movieController")
+
+router.get('/home', (req, res) =>{
+    res.render('layouts/mainlayout')
+})
+
+router.get('/login', (req, res)=>{
+    res.render('layouts/login')
+})
+
+router.get('/signup', (req, res)=>{
+    res.render('layouts/signup')
+})
+
+router.post('/login', async(req, res) =>{
+    const user = movieModel.user
+
+    try{
+        const check= await user.findOne({name:req.body.name})
+
+        if (check.password === req.body.password){
+            res.render("home")
+        }
+        else{
+            res.send("Wrong password")
+        }
+    }
+    catch{
+        res.send ("Wrong details")
+    }
+})
+
+router.post('/signup', async(req, res) =>{
+    const data={
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password
+    }
+
+    const user = movieModel.user
+
+    await user.insertMany([data])
+
+    // res.render('movie/list')
+    res.json("welcome")
+})
+
+
 
 router.get('/', (req, res) =>{
     res.render("movie/addorEdit", {
@@ -39,15 +86,14 @@ function insertRecord(req, res){
     })
 }
 
-router.get('/list', async (req, res, next) =>{
-    let movies = movieModel.movies;
-
-    let movieResult = await movies.find({}).exec({err, moviesData} ={
-        if(moviesData){
-            res.render("movie/list", {data:moviesData})
-        }
-    })
-})
+router.get('/list', async (req, res) => {
+    try {
+      const results = await Movie.find({}); // Execute the query and wait for the results
+      res.render('movie/list', {data:results}); // Send the results to list.hbs
+    } catch (err) {
+      console.log('Error:' + err); // Handle any errors
+    }
+});
 
 function handleValidationError(err, body){
     for(field in err.errors){

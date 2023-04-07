@@ -8,4 +8,4 @@ mongoose.connect("mongodb://127.0.0.1:27017/Mymoviesapp")
     console.log("Failed to connect")
 });
 
-require("./movie.model")
+require("./model")
