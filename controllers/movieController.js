@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose")
-const Movie = mongoose.model("Movieslist")
 const movieModel = require("../models/model")
+const Movie = mongoose.model("Movieslist")
 const movieController = require("../controllers/movieController")
+const scrapedMovies = require("../config/allMovies.json")
 
 router.get('/home', (req, res) =>{
     res.render('layouts/mainlayout')
@@ -11,10 +12,6 @@ router.get('/home', (req, res) =>{
 
 router.get('/login', (req, res)=>{
     res.render('layouts/login')
-})
-
-router.get('/signup', (req, res)=>{
-    res.render('layouts/signup')
 })
 
 router.post('/login', async(req, res) =>{
@@ -33,6 +30,10 @@ router.post('/login', async(req, res) =>{
     catch{
         res.send ("Wrong details")
     }
+})
+
+router.get('/signup', (req, res)=>{
+    res.render('layouts/signup')
 })
 
 router.post('/signup', async(req, res) =>{
@@ -112,5 +113,16 @@ function handleValidationError(err, body){
         }
     }
 }
+
+const insertData = async() => {
+    try{
+        const docs = await Movie.insertMany(scrapedMovies)
+        return Promise.resolve(docs);
+    }catch(err){
+        return Promise.reject(err);
+    }
+}
+
+insertData()
 
 module.exports = router
