@@ -87,7 +87,7 @@ function insertRecord(req, res){
     })
 }
 
-router.get('/list', async (req, res) => {
+router.get('/list',paginatedResults(Movie), async (req, res) => {
     try {
       const results = await Movie.find({}); // Execute the query and wait for the results
       res.render('movie/list', {data:results}); // Send the results to list.hbs
@@ -114,15 +114,50 @@ function handleValidationError(err, body){
     }
 }
 
-const insertData = async() => {
-    try{
-        const docs = await Movie.insertMany(scrapedMovies)
-        return Promise.resolve(docs);
-    }catch(err){
-        return Promise.reject(err);
+function paginatedResults(model){
+    return async (req, res, next) => {
+        const page = parseInt(req.query.page)
+        const limit = parseInt(req.query.limit)
+
+        const startIndex = (page - 1) * limit
+        const endIndex = page * limit
+        const results = {}
+
+        if (endIndex < await model.countDocuments().exec()){
+            results.next = {
+                page: page + 1,
+                limit : limit
+            }
+        }
+
+        if (startIndex > 0){
+            results.previous = {
+                page: page - 1,
+                limit : limit
+            }
+        }
+
+        try{
+            results.results = await model.find().limit(limit).skip(startIndex).exec()
+            res.paginatedResults = results
+            next()
+        }catch(err){
+            res.status(500).json({message : err.message})
+        }
     }
 }
 
-insertData()
+// const insertData = async() => {
+//     try{
+//         const docs = await Movie.insertMany(scrapedMovies)
+//         return Promise.resolve(docs);
+//     }catch(err){
+//         return Promise.reject(err);
+//     }
+// }
+
+// insertData()
+//     .then((docs) => console.log(docs))
+//     .catch((err) => console.log(err));
 
 module.exports = router
