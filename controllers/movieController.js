@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose")
-const movieModel = require("../models/model")
 const Movie = mongoose.model("Movieslist")
+const User = mongoose.model("users")
 const movieController = require("../controllers/movieController")
 const scrapedMovies = require("../config/allMovies.json")
 
@@ -15,13 +15,11 @@ router.get('/login', (req, res)=>{
 })
 
 router.post('/login', async(req, res) =>{
-    const user = movieModel.user
-
     try{
-        const check= await user.findOne({name:req.body.name})
+        const check= await User.findOne({name:req.body.name})
 
         if (check.password === req.body.password){
-            res.render("home")
+            res.render("movie/list")
         }
         else{
             res.send("Wrong password")
@@ -43,15 +41,11 @@ router.post('/signup', async(req, res) =>{
         password: req.body.password
     }
 
-    const user = movieModel.user
-
-    await user.insertMany([data])
+    await User.insertMany([data])
 
     // res.render('movie/list')
     res.json("welcome")
 })
-
-
 
 router.get('/', (req, res) =>{
     res.render("movie/addorEdit", {
@@ -61,6 +55,41 @@ router.get('/', (req, res) =>{
 
 router.post('/', (req, res)=>{
     insertRecord(req, res)
+});
+
+router.get('/:id', (req, res) =>{
+    Movie.findById(req.params.id)
+        .then((doc) =>{
+            res.render('movie/addoredit', {
+                viewTitle: "Edit a movie",
+                movie: doc
+            })
+        })
+        .catch((err) =>{
+            console.log(err)
+        })
+})
+
+router.get('/:id', async(req, res) => {
+    try{
+        const doc = await Movie.findById(req.params.id).exec();
+        if(!doc){
+            console.log("Document not found")
+        }
+        return res.render('movie/addorEdit', {viewTitle: "Edit a movie", movie: doc})
+    }catch(err){
+        console.log(err)
+    }
+})
+
+
+router.get('/list',paginatedResults(Movie), async (req, res) => {
+    try {
+      const results = await Movie.find({}); // Execute the query and wait for the results
+      res.render('movie/list', {data:results}); // Send the results to list.hbs
+    } catch (err) {
+      console.log('Error:' + err); // Handle any errors
+    }
 });
 
 function insertRecord(req, res){
@@ -87,15 +116,6 @@ function insertRecord(req, res){
     })
 }
 
-router.get('/list',paginatedResults(Movie), async (req, res) => {
-    try {
-      const results = await Movie.find({}); // Execute the query and wait for the results
-      res.render('movie/list', {data:results}); // Send the results to list.hbs
-    } catch (err) {
-      console.log('Error:' + err); // Handle any errors
-    }
-});
-
 function handleValidationError(err, body){
     for(field in err.errors){
         switch (err.errors[field].path){
@@ -114,38 +134,38 @@ function handleValidationError(err, body){
     }
 }
 
-function paginatedResults(model){
-    return async (req, res, next) => {
-        const page = parseInt(req.query.page)
-        const limit = parseInt(req.query.limit)
+// function paginatedResults(model){
+//     return async (req, res, next) => {
+//         const page = parseInt(req.query.page)
+//         const limit = parseInt(req.query.limit)
 
-        const startIndex = (page - 1) * limit
-        const endIndex = page * limit
-        const results = {}
+//         const startIndex = (page - 1) * limit
+//         const endIndex = page * limit
+//         const results = {}
 
-        if (endIndex < await model.countDocuments().exec()){
-            results.next = {
-                page: page + 1,
-                limit : limit
-            }
-        }
+//         if (endIndex < await model.countDocuments().exec()){
+//             results.next = {
+//                 page: page + 1,
+//                 limit : limit
+//             }
+//         }
 
-        if (startIndex > 0){
-            results.previous = {
-                page: page - 1,
-                limit : limit
-            }
-        }
+//         if (startIndex > 0){
+//             results.previous = {
+//                 page: page - 1,
+//                 limit : limit
+//             }
+//         }
 
-        try{
-            results.results = await model.find().limit(limit).skip(startIndex).exec()
-            res.paginatedResults = results
-            next()
-        }catch(err){
-            res.status(500).json({message : err.message})
-        }
-    }
-}
+//         try{
+//             results.results = await model.find().limit(limit).skip(startIndex).exec()
+//             res.paginatedResults = results
+//             next()
+//         }catch(err){
+//             res.status(500).json({message : err.message})
+//         }
+//     }
+// }
 
 // const insertData = async() => {
 //     try{

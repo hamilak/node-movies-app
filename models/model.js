@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const mongoosepaginate = require("mongoose-paginate")
 
 const movieSchema = new mongoose.Schema({
     name: {
@@ -14,6 +15,7 @@ const movieSchema = new mongoose.Schema({
         required: 'This field is required'
     }
 });
+// movieSchema.plugin(mongoosepaginate)
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -34,7 +36,7 @@ const userSchema = new mongoose.Schema({
 })
 
 const movies = mongoose.model("Movieslist", movieSchema);
-const user = new mongoose.model("Users", userSchema)
+const user = mongoose.model("users", userSchema)
 
 mySchemas = {"movies": movies, "user": user}
 

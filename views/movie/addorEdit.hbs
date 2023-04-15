@@ -11,6 +11,7 @@
     <div class="container mt-2">
     <h3 class="">{{viewTitle}}</h3>
         <form class="form-control form-control-lg" action="/movie" method="POST">
+            <input type="hidden" name="_id", value="{{employee._id}}">
             <div class="container mt-2">
                 <label for="">Movie title</label>
                 <input type="text" name="name" class="form-control" placeholder="Movie title" value="{{movie.name}}">
@@ -35,9 +36,10 @@
             <div class="container d-grid gap-2 col-6 mx-auto mt-2">
                 <button class= "btn btn-primary "type="submit">Submit</button>
             </div>
-        </form>
-        <div class="container d-grid gap-2 col-6 mx-auto mt-2">
-            <button class= "btn btn-primary "type="submit"><a href = "/list">View all</a></button>
+            <div class="container d-grid gap-2 col-6 mx-auto mt-2">
+            <button class= "btn btn-primary "type="submit"><a href = "movie/list">View all</a></button>
         </div>
+        </form>
+        
     </div>
 </body>
